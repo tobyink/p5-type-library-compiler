@@ -5,6 +5,7 @@
 `Type-Library-Compiler`
 	:runtime-requirement    [ :on "perl 5.008001"^^:CpanId ];
 	:test-requirement       [ :on "Test2::V0"^^:CpanId ];
+	:test-requirement       [ :on "Test::Requires"^^:CpanId ];
 	:test-requirement       [ :on "Types::Standard"^^:CpanId ];
 	:develop-recommendation [ :on "Dist::Inkt 0.001"^^:CpanId ];
 	.
