@@ -3,7 +3,9 @@
 @prefix : <http://ontologi.es/doap-deps#>.
 
 `Type-Library-Compiler`
-	:test-requirement       [ :on "Test::More 0.96"^^:CpanId ];
+	:runtime-requirement    [ :on "perl 5.008001"^^:CpanId ];
+	:test-requirement       [ :on "Test2::V0"^^:CpanId ];
+	:test-requirement       [ :on "Types::Standard"^^:CpanId ];
 	:develop-recommendation [ :on "Dist::Inkt 0.001"^^:CpanId ];
 	.
 
