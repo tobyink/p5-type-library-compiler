@@ -121,8 +121,16 @@ BEGIN {
 			: Carp::croak( $_[0]->get_message( $_[1] ) );
 	}
 
+	sub to_TypeTiny {
+		my ( undef, $name, $library ) = @{ +shift };
+		local $@;
+		eval "require $library; 1" or die $@;
+		$library->get_type( $name );
+	}
+
 	sub DOES {
 		return 1 if $_[1] eq 'Type::API::Constraint';
+		return 1 if $_[1] eq 'Type::Library::Compiler::TypeConstraint';
 		shift->DOES( @_ );
 	}
 };
@@ -149,10 +157,10 @@ sub _compile_type {
 	local $Type::Tiny::AvoidCallbacks = 1;
 	local $Type::Tiny::SafePackage = '';
 
-	push @code, sprintf <<'CODE', $name, $name, B::perlstring( $name ), B::perlstring( $self->constraint_module );
+	push @code, sprintf <<'CODE', $name, $name, B::perlstring( $name ), B::perlstring( $type->library ), B::perlstring( $self->constraint_module );
 	my $type;
 	sub %s () {
-		$type ||= bless( [ \&is_%s, %s ], %s );
+		$type ||= bless( [ \&is_%s, %s, %s ], %s );
 	}
 CODE
 

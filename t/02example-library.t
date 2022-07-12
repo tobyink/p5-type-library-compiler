@@ -49,21 +49,29 @@ isa_ok( 'Local::Library1', 'Exporter' );
 
 my $Str = Local::Library1::Str();
 
-ok(   $Str->check( ""      ) );
-ok(   $Str->check( "Hello" ) );
-ok( ! $Str->check( []      ) );
+ok   $Str->check( ""      ), 'passing type check 1';
+ok   $Str->check( "Hello" ), 'passing type check 2';
+ok ! $Str->check( []      ), 'failing type check';
 
-ok   Local::Library1::assert_Any( 1 );
-ok ! Local::Library1::assert_Any( 0 );
+ok   Local::Library1::assert_Any( 1 ), 'assert_Any( true )';
+ok ! Local::Library1::assert_Any( 0 ), 'assert_Any( false )';
 
 is(
 	$Local::Library1::EXPORT_TAGS{'Str'},
 	[ qw( Str is_Str assert_Str ) ],
+	q[$EXPORT_TAGS{'Str'}],
 );
 
 is(
 	$Local::Library1::EXPORT_TAGS{'types'},
 	[ sort qw( Any Int Str Num ArrayRef HashRef Object Undef ) ],
+	q[$EXPORT_TAGS{'types'}],
+);
+
+is(
+	$Str->to_TypeTiny->{uniq},
+	Types::Standard::Str->{uniq},
+	'Can upgrade to Type::Tiny',
 );
 
 done_testing;
