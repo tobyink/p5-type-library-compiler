@@ -249,7 +249,7 @@ CODE
 sub _compile_pod_footer {
 	my $self = shift;
 
-	return sprintf <<'CODE', $self->destination_module;
+	return <<'CODE';
 =cut
 
 CODE
