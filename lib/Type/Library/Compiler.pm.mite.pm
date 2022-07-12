@@ -64,6 +64,38 @@
             $self->{"types"} = $value;
         };
 
+        # Attribute: pod
+        do {
+            my $value = exists( $args->{"pod"} ) ? $args->{"pod"} : "1";
+            do {
+                my $coerced_value = do {
+                    my $to_coerce = $value;
+                    (
+                        (
+                            !ref $to_coerce
+                              and (!defined $to_coerce
+                                or $to_coerce eq q()
+                                or $to_coerce eq '0'
+                                or $to_coerce eq '1' )
+                        )
+                      ) ? $to_coerce
+                      : ( ( !!1 ) )
+                      ? scalar( do { local $_ = $to_coerce; !!$_ } )
+                      : $to_coerce;
+                };
+                (
+                    !ref $coerced_value
+                      and (!defined $coerced_value
+                        or $coerced_value eq q()
+                        or $coerced_value eq '0'
+                        or $coerced_value eq '1' )
+                  )
+                  or croak "Type check failed in constructor: %s should be %s",
+                  "pod", "Bool";
+                $self->{"pod"} = $coerced_value;
+            };
+        };
+
         # Attribute: destination_module
         croak "Missing key in constructor: destination_module"
           unless exists $args->{"destination_module"};
@@ -117,8 +149,8 @@
 
         # Enforce strict constructor
         my @unknown = grep not(
-            /\A(?:constraint_module|destination_(?:filename|module)|types)\z/),
-          keys %{$args};
+/\A(?:constraint_module|destination_(?:filename|module)|pod|types)\z/
+        ), keys %{$args};
         @unknown
           and croak(
             "Unexpected keys in constructor: " . join( q[, ], sort @unknown ) );
@@ -248,6 +280,39 @@
                 "destination_module is a read-only attribute of @{[ref $_[0]]}")
               : $_[0]{"destination_module"};
         };
+    }
+
+    # Accessors for pod
+    sub pod {
+        @_ > 1
+          ? do {
+            my $value = do {
+                my $to_coerce = $_[1];
+                (
+                    (
+                        !ref $to_coerce
+                          and (!defined $to_coerce
+                            or $to_coerce eq q()
+                            or $to_coerce eq '0'
+                            or $to_coerce eq '1' )
+                    )
+                  ) ? $to_coerce
+                  : ( ( !!1 ) ) ? scalar( do { local $_ = $to_coerce; !!$_ } )
+                  :               $to_coerce;
+            };
+            (
+                !ref $value
+                  and (!defined $value
+                    or $value eq q()
+                    or $value eq '0'
+                    or $value eq '1' )
+              )
+              or croak( "Type check failed in %s: value should be %s",
+                "accessor", "Bool" );
+            $_[0]{"pod"} = $value;
+            $_[0];
+          }
+          : ( $_[0]{"pod"} );
     }
 
     # Accessors for types

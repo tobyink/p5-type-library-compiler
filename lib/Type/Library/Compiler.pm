@@ -16,6 +16,13 @@ has types => (
 	builder => sub { [] },
 );
 
+has pod => (
+	is => rw,
+	isa => 'Bool',
+	coerce => true,
+	default => true,
+);
+
 has destination_module => (
 	is => ro,
 	isa => 'Str',
@@ -64,6 +71,12 @@ sub compile_to_string {
 	$code .= $self->_compile_header;
 	$code .= $self->_compile_type( $_ ) for @types;
 	$code .= $self->_compile_footer;
+
+	if ( $self->pod ) {
+		$code .= $self->_compile_pod_header;
+		$code .= $self->_compile_pod_type( $_ ) for @types;
+		$code .= $self->_compile_pod_footer;
+	}
 
 	return $code;
 }
@@ -154,6 +167,7 @@ sub _compile_footer {
 	return <<'CODE';
 
 1;
+__END__
 
 CODE
 }
@@ -196,6 +210,49 @@ CODE
 
 	push @code, "}", '', '';
 	return join "\n", @code;
+}
+
+sub _compile_pod_header {
+	my $self = shift;
+
+	return sprintf <<'CODE', $self->destination_module;
+=head1 NAME
+
+%s - type constraint library
+
+=head1 TYPES
+
+CODE
+}
+
+sub _compile_pod_type {
+	my ( $self, $type ) = ( shift, @_ );
+
+	my $name = $type->name;
+
+	return sprintf <<'CODE', $name, $type->library, $name, $name, $name, $self->destination_module, $name;
+=head2 B<< %s >>
+
+As originally defined in L<%s>.
+
+The C<< %s >> constant returns a blessed type constraint object.
+C<< is_%s($value) >> checks a value against the type and returns a boolean.
+C<< assert_%s($value) >> checks a value against the type and throws an error.
+
+To import all of these functions:
+
+  use %s qw( :%s );
+
+CODE
+}
+
+sub _compile_pod_footer {
+	my $self = shift;
+
+	return sprintf <<'CODE', $self->destination_module;
+=cut
+
+CODE
 }
 
 sub parse_list {
@@ -249,6 +306,10 @@ This class performs the bulk of the work for F<type-library-compiler>.
 =head3 C<types> B<< ArrayRef[Object] >>
 
 Required array of L<Type::Tiny> objects.
+
+=head3 C<pod> B<< Bool >>
+
+Should the generated module include pod? Defaults to true.
 
 =head3 C<destination_module> B<< Str >>
 
