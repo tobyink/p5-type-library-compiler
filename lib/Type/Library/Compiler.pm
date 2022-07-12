@@ -93,6 +93,16 @@ our %%EXPORT_TAGS = (
 BEGIN {
 	package %s;
 
+	use overload (
+		fallback => !!1,
+		bool     => sub { !! 1 },
+		'""'     => sub { shift->[1] },
+		'&{}'    => sub {
+			my $self = shift;
+			return sub { $self->assert_return( @_ ) };
+		},
+	);
+
 	sub check {
 		$_[0][0]->( $_[1] );
 	}

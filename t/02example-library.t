@@ -74,4 +74,27 @@ is(
 	'Can upgrade to Type::Tiny',
 );
 
+is(
+	"$Str",
+	"Str",
+	'String overload',
+);
+
+ok(
+	!!$Str,
+	'Bool overload',
+);
+
+is(
+	$Str->( "Hello" ),
+	"Hello",
+	'Coderef overload',
+);
+
+like(
+	do { local $@; eval { $Str->( [] ) }; $@ },
+	qr/did not pass type constraint/,
+	'Coderef overload (failing)',
+);
+
 done_testing;
