@@ -216,11 +216,11 @@ sub _compile_pod_header {
 	my $self = shift;
 
 	return sprintf <<'CODE', $self->destination_module;
-=head1 NAME
+#=head1 NAME
 
 %s - type constraint library
 
-=head1 TYPES
+#=head1 TYPES
 
 CODE
 }
@@ -231,7 +231,7 @@ sub _compile_pod_type {
 	my $name = $type->name;
 
 	return sprintf <<'CODE', $name, $type->library, $name, $name, $name, $self->destination_module, $name;
-=head2 B<< %s >>
+#=head2 B<< %s >>
 
 As originally defined in L<%s>.
 
@@ -250,10 +250,17 @@ sub _compile_pod_footer {
 	my $self = shift;
 
 	return <<'CODE';
-=cut
+#=cut
 
 CODE
 }
+
+around qw( _compile_pod_header _compile_pod_type _compile_pod_footer ) => sub {
+	my ( $next, $self ) = ( shift, shift );
+	my $pod = $self->$next( @_ );
+	$pod =~ s{^#=}{=}gsm;
+	return $pod;
+};
 
 sub parse_list {
 	shift;
