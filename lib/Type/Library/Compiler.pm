@@ -216,14 +216,60 @@ Type::Library::Compiler - compile a bunch of type constraints into a library wit
 
 =head1 SYNOPSIS
 
+  type-library-compiler --module=MyApp::Types Types::Standard=-all
+
 =head1 DESCRIPTION
+
+This class performs the bulk of the work for F<type-library-compiler>.
+
+=head2 Constructor
+
+=head3 C<< new( %attributes ) >>
+
+=head2 Attributes
+
+=head3 C<types> B<< ArrayRef[Object] >>
+
+Required array of L<Type::Tiny> objects.
+
+=head3 C<destination_module> B<< Str >>
+
+Required Perl module name to produce.
+
+=head3 C<constraint_module> B<< Str >>
+
+Leave this as the default.
+
+=head3 C<destination_filename> B<< Str >>
+
+Leave this as the default.
+
+=head2 Object Methods
+
+=head3 C<< compile_to_file() >>
+
+Writes the module to C<destination_filename>.
+
+=head3 C<< compile_to_string() >>
+
+Returns the module as a string of Perl code.
+
+=head2 Class Methods
+
+=head3 C<< parse_list( @argv ) >>
+
+Parses a list of strings used to specify type constraints on the command line,
+and returns an arrayref of L<Type::Tiny> objects, suitable for the C<types>
+attribute.
 
 =head1 BUGS
 
 Please report any bugs to
-L<http://rt.cpan.org/Dist/Display.html?Queue=Type-Library-Compiler>.
+<https://github.com/tobyink/p5-type-library-compiler/issues>.
 
 =head1 SEE ALSO
+
+L<Mite>, L<Type::Library>, L<Type::Tiny>.
 
 =head1 AUTHOR
 
@@ -235,7 +281,6 @@ This software is copyright (c) 2022 by Toby Inkster.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
-
 
 =head1 DISCLAIMER OF WARRANTIES
 

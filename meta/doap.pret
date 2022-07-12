@@ -8,7 +8,7 @@
 	:homepage             <https://metacpan.org/release/Type-Library-Compiler>;
 	:download-page        <https://metacpan.org/release/Type-Library-Compiler>;
 	:bug-database         <https://github.com/tobyink/p5-type-library-compiler/issues>;
-#	:repository           [ a :GitRepository; :browse <https://github.com/tobyink/p5-type-library-compiler> ];
+	:repository           [ a :GitRepository; :browse <https://github.com/tobyink/p5-type-library-compiler> ];
 	:created              2022-07-12;
 	:license              <http://dev.perl.org/licenses/>;
 	:maintainer           cpan:TOBYINK;
