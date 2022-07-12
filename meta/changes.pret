@@ -4,3 +4,8 @@
 	issued  2022-07-12;
 	label   "Initial release".
 
+`Type-Library-Compiler 0.002 cpan:TOBYINK`
+	issued  2022-07-12;
+	changeset [
+		item "Fix generated pod and real pod being confused."^^Documentation;
+	].
