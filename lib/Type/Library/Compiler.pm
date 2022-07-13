@@ -107,6 +107,7 @@ BEGIN {
 
 	use overload (
 		fallback => !!1,
+		'|'      => 'union',
 		bool     => sub { !! 1 },
 		'""'     => sub { shift->[1] },
 		'&{}'    => sub {
@@ -114,6 +115,16 @@ BEGIN {
 			return sub { $self->assert_return( @_ ) };
 		},
 	);
+
+	sub union {
+		my @types = grep ref( $_ ), @_;
+		my @codes = map $_->[0], @types;
+		bless [
+			sub { for ( @codes ) { return 1 if $_->(@_) } return 0 },
+			join( '|', map $_->[1], @types ),
+			\@types,
+		], __PACKAGE__;
+	}
 
 	sub check {
 		$_[0][0]->( $_[1] );
@@ -145,6 +156,12 @@ BEGIN {
 
 	sub to_TypeTiny {
 		my ( $coderef, $name, $library, $origname ) = @{ +shift };
+		if ( ref $library eq 'ARRAY' ) {
+			require Type::Tiny::Union;
+			return 'Type::Tiny::Union'->new(
+				type_constraints => [ map $_->to_TypeTiny, @$library ],
+			);
+		}
 		if ( $library ) {
 			local $@;
 			eval "require $library; 1" or die $@;
@@ -228,6 +245,10 @@ sub _compile_pod_header {
 %s - type constraint library
 
 #=head1 TYPES
+
+This type constraint library is even more basic that L<Type::Tiny>. Exported
+types may be combined using C<< Foo | Bar >> but parameterized type constraints
+like C<< Foo[Bar] >> are not supported.
 
 CODE
 }

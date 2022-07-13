@@ -102,4 +102,10 @@ my $tt = Local::Library1::UA()->to_TypeTiny;
 ok   $tt->check( bless [], 'HTTP::Tiny' ), 'to_TypeTiny of anon type constraint 1';
 ok ! $tt->check( [] ), 'to_TypeTiny of anon type constraint 2';
 
+my $union = Local::Library1::Integer() | Local::Library1::Hash();
+ok   $union->check( 42 ), 'Integer | Hash - 42';
+ok   $union->check( {} ), 'Integer | Hash - {}';
+ok ! $union->check( [] ), 'Integer | Hash - []';
+ok ! $union->check( '' ), 'Integer | Hash - ""';
+
 done_testing;
