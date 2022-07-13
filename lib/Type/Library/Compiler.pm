@@ -12,7 +12,7 @@ use B ();
 
 has types => (
 	is => ro,
-	isa => 'ArrayRef[Object]',
+	isa => 'HashRef[Object]',
 	builder => sub { [] },
 );
 
@@ -63,18 +63,16 @@ sub compile_to_file {
 sub compile_to_string {
 	my $self = shift;
 
-	my @types =
-		sort { $a->display_name cmp $b->display_name }
-		@{ $self->types or [] };
+	my @type_names = sort keys %{ $self->types or {} };
 
 	my $code = '';
 	$code .= $self->_compile_header;
-	$code .= $self->_compile_type( $_ ) for @types;
+	$code .= $self->_compile_type( $self->types->{$_}, $_ ) for @type_names;
 	$code .= $self->_compile_footer;
 
 	if ( $self->pod ) {
 		$code .= $self->_compile_pod_header;
-		$code .= $self->_compile_pod_type( $_ ) for @types;
+		$code .= $self->_compile_pod_type( $self->types->{$_}, $_ ) for @type_names;
 		$code .= $self->_compile_pod_footer;
 	}
 
@@ -84,7 +82,7 @@ sub compile_to_string {
 sub _compile_header {
 	my $self = shift;
 
-	return sprintf <<'CODE', $self->destination_module, $self->constraint_module;
+	return sprintf <<'CODE', $self->destination_module, $self->constraint_module, $self->destination_module;
 use 5.008001;
 use strict;
 use warnings;
@@ -105,6 +103,7 @@ our %%EXPORT_TAGS = (
 
 BEGIN {
 	package %s;
+	our $LIBRARY = "%s";
 
 	use overload (
 		fallback => !!1,
@@ -145,10 +144,19 @@ BEGIN {
 	}
 
 	sub to_TypeTiny {
-		my ( undef, $name, $library ) = @{ +shift };
-		local $@;
-		eval "require $library; 1" or die $@;
-		$library->get_type( $name );
+		my ( $coderef, $name, $library, $origname ) = @{ +shift };
+		if ( $library ) {
+			local $@;
+			eval "require $library; 1" or die $@;
+			my $type = $library->get_type( $origname );
+			return $type if $type;
+		}
+		require Type::Tiny;
+		return 'Type::Tiny'->new(
+			name       => $name,
+			constraint => sub { $coderef->( $_ ) },
+			inlined    => sub { sprintf '%%s::is_%%s(%%s)', $LIBRARY, $name, pop }
+		);
 	}
 
 	sub DOES {
@@ -173,18 +181,17 @@ CODE
 }
 
 sub _compile_type {
-	my ( $self, $type ) = ( shift, @_ );
+	my ( $self, $type, $name ) = ( shift, @_ );
 
-	my $name = $type->name;
 	my @code = ( "# $name", '{' );
 
 	local $Type::Tiny::AvoidCallbacks = 1;
 	local $Type::Tiny::SafePackage = '';
 
-	push @code, sprintf <<'CODE', $name, $name, B::perlstring( $name ), B::perlstring( $type->library ), B::perlstring( $self->constraint_module );
+	push @code, sprintf <<'CODE', $name, $name, B::perlstring( $name ), B::perlstring( $type->library ), B::perlstring( $type->name ), B::perlstring( $self->constraint_module );
 	my $type;
 	sub %s () {
-		$type ||= bless( [ \&is_%s, %s, %s ], %s );
+		$type ||= bless( [ \&is_%s, %s, %s, %s ], %s );
 	}
 CODE
 
@@ -226,14 +233,15 @@ CODE
 }
 
 sub _compile_pod_type {
-	my ( $self, $type ) = ( shift, @_ );
+	my ( $self, $type, $name ) = ( shift, @_ );
 
-	my $name = $type->name;
+	my $based_on = '';
+	if ( $type->library and not $type->is_anon ) {
+		$based_on = sprintf "\n\nBased on B<%s> in L<%s>.", $type->name, $type->library;
+	}
 
-	return sprintf <<'CODE', $name, $type->library, $name, $name, $name, $self->destination_module, $name;
-#=head2 B<< %s >>
-
-As originally defined in L<%s>.
+	return sprintf <<'CODE', $name, $based_on, $name, $name, $name, $self->destination_module, $name;
+#=head2 B<%s>%s
 
 The C<< %s >> constant returns a blessed type constraint object.
 C<< is_%s($value) >> checks a value against the type and returns a boolean.
@@ -265,7 +273,8 @@ around qw( _compile_pod_header _compile_pod_type _compile_pod_footer ) => sub {
 sub parse_list {
 	shift;
 
-	my @all =
+	my %all =
+		map { $_->is_anon ? $_->display_name : $_->name }
 		map {
 			my ( $library, $type_names ) = split /=/, $_;
 			do {
@@ -281,7 +290,7 @@ sub parse_list {
 		}
 		map { split /\s+/, $_ } @_;
 
-	return \@all;
+	return \%all;
 }
 
 1;

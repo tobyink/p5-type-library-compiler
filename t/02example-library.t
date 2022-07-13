@@ -4,7 +4,7 @@
 
 =head1 PURPOSE
 
-Test that Type::Library::Compiler compiles.
+Test that Type::Library::Compiler works.
 
 =head1 AUTHOR
 
@@ -26,16 +26,17 @@ use Type::Library::Compiler;
 
 my $compiler = 'Type::Library::Compiler'->new(
 	destination_module => 'Local::Library1',
-	types => [
-		Types::Standard::Str,
-		Types::Standard::Int,
-		Types::Standard::Num,
-		Types::Standard::ArrayRef,
-		Types::Standard::HashRef,
-		Types::Standard::Undef,
-		Types::Standard::Object,
-		Types::Standard::Any,
-	],
+	types => {
+		String  => Types::Standard::Str,
+		Integer => Types::Standard::Int,
+		Number  => Types::Standard::Num,
+		Array   => Types::Standard::ArrayRef,
+		Hash    => Types::Standard::HashRef,
+		Null    => Types::Standard::Undef,
+		Object  => Types::Standard::Object,
+		Any     => Types::Standard::Any,
+		UA      => Types::Standard::InstanceOf[ 'HTTP::Tiny' ],
+	},
 );
 
 {
@@ -47,54 +48,58 @@ my $compiler = 'Type::Library::Compiler'->new(
 
 isa_ok( 'Local::Library1', 'Exporter' );
 
-my $Str = Local::Library1::Str();
+my $String = Local::Library1::String();
 
-ok   $Str->check( ""      ), 'passing type check 1';
-ok   $Str->check( "Hello" ), 'passing type check 2';
-ok ! $Str->check( []      ), 'failing type check';
+ok   $String->check( ""      ), 'passing type check 1';
+ok   $String->check( "Hello" ), 'passing type check 2';
+ok ! $String->check( []      ), 'failing type check';
 
 ok   Local::Library1::assert_Any( 1 ), 'assert_Any( true )';
 ok ! Local::Library1::assert_Any( 0 ), 'assert_Any( false )';
 
 is(
-	$Local::Library1::EXPORT_TAGS{'Str'},
-	[ qw( Str is_Str assert_Str ) ],
-	q[$EXPORT_TAGS{'Str'}],
+	$Local::Library1::EXPORT_TAGS{'String'},
+	[ qw( String is_String assert_String ) ],
+	q[$EXPORT_TAGS{'String'}],
 );
 
 is(
 	$Local::Library1::EXPORT_TAGS{'types'},
-	[ sort qw( Any Int Str Num ArrayRef HashRef Object Undef ) ],
+	[ sort qw( Any Integer String Number Array Hash Object Null UA ) ],
 	q[$EXPORT_TAGS{'types'}],
 );
 
 is(
-	$Str->to_TypeTiny->{uniq},
+	$String->to_TypeTiny->{uniq},
 	Types::Standard::Str->{uniq},
 	'Can upgrade to Type::Tiny',
 );
 
 is(
-	"$Str",
-	"Str",
+	"$String",
+	"String",
 	'String overload',
 );
 
 ok(
-	!!$Str,
+	!!$String,
 	'Bool overload',
 );
 
 is(
-	$Str->( "Hello" ),
+	$String->( "Hello" ),
 	"Hello",
 	'Coderef overload',
 );
 
 like(
-	do { local $@; eval { $Str->( [] ) }; $@ },
+	do { local $@; eval { $String->( [] ) }; $@ },
 	qr/did not pass type constraint/,
 	'Coderef overload (failing)',
 );
+
+my $tt = Local::Library1::UA()->to_TypeTiny;
+ok   $tt->check( bless [], 'HTTP::Tiny' ), 'to_TypeTiny of anon type constraint 1';
+ok ! $tt->check( [] ), 'to_TypeTiny of anon type constraint 2';
 
 done_testing;

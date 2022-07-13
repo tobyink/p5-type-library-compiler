@@ -43,9 +43,9 @@
             do {
 
                 package Type::Library::Compiler::Mite;
-                ( ref($value) eq 'ARRAY' ) and do {
+                ( ref($value) eq 'HASH' ) and do {
                     my $ok = 1;
-                    for my $i ( @{$value} ) {
+                    for my $i ( values %{$value} ) {
                         ( $ok = 0, last )
                           unless (
                             do {
@@ -60,7 +60,7 @@
                 }
               }
               or croak "Type check failed in constructor: %s should be %s",
-              "types", "ArrayRef[Object]";
+              "types", "HashRef[Object]";
             $self->{"types"} = $value;
         };
 
