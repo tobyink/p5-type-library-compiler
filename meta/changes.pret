@@ -22,3 +22,9 @@
 	changeset [
 		item "Fix bug building hashref in parse_list."^^Bugfix;
 	].
+
+`Type-Library-Compiler 0.005 cpan:TOBYINK`
+	issued  2022-07-13;
+	changeset [
+		item "Support Foo|Bar union type constraints."^^Addition;
+	].
