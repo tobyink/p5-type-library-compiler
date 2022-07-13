@@ -45,22 +45,39 @@
                 package Type::Library::Compiler::Mite;
                 ( ref($value) eq 'HASH' ) and do {
                     my $ok = 1;
-                    for my $i ( values %{$value} ) {
+                    for my $v ( values %{$value} ) {
                         ( $ok = 0, last )
                           unless (
                             do {
 
                                 package Type::Library::Compiler::Mite;
                                 use Scalar::Util ();
-                                Scalar::Util::blessed($i);
+                                Scalar::Util::blessed($v);
                             }
+                          );
+                    };
+                    for my $k ( keys %{$value} ) {
+                        ( $ok = 0, last )
+                          unless (
+                            (
+                                do {
+
+                                    package Type::Library::Compiler::Mite;
+                                    defined($k) and do {
+                                        ref( \$k ) eq 'SCALAR'
+                                          or ref( \( my $val = $k ) ) eq
+                                          'SCALAR';
+                                    }
+                                }
+                            )
+                            && ( length($k) > 0 )
                           );
                     };
                     $ok;
                 }
               }
               or croak "Type check failed in constructor: %s should be %s",
-              "types", "HashRef[Object]";
+              "types", "Map[NonEmptyStr,Object]";
             $self->{"types"} = $value;
         };
 
@@ -99,17 +116,26 @@
         # Attribute: destination_module
         croak "Missing key in constructor: destination_module"
           unless exists $args->{"destination_module"};
-        do {
+        (
+            (
+                do {
 
-            package Type::Library::Compiler::Mite;
-            defined( $args->{"destination_module"} ) and do {
-                ref( \$args->{"destination_module"} ) eq 'SCALAR'
-                  or ref( \( my $val = $args->{"destination_module"} ) ) eq
-                  'SCALAR';
+                    package Type::Library::Compiler::Mite;
+                    defined( $args->{"destination_module"} ) and do {
+                        ref( \$args->{"destination_module"} ) eq 'SCALAR'
+                          or ref( \( my $val = $args->{"destination_module"} ) )
+                          eq 'SCALAR';
+                    }
+                }
+            )
+              && do {
+
+                package Type::Library::Compiler::Mite;
+                length( $args->{"destination_module"} ) > 0;
             }
-          }
+          )
           or croak "Type check failed in constructor: %s should be %s",
-          "destination_module", "Str";
+          "destination_module", "NonEmptyStr";
         $self->{"destination_module"} = $args->{"destination_module"};
 
         # Attribute: constraint_module
@@ -118,32 +144,47 @@
               exists( $args->{"constraint_module"} )
               ? $args->{"constraint_module"}
               : $self->_build_constraint_module;
-            do {
+            (
+                (
+                    do {
 
-                package Type::Library::Compiler::Mite;
-                defined($value) and do {
-                    ref( \$value ) eq 'SCALAR'
-                      or ref( \( my $val = $value ) ) eq 'SCALAR';
-                }
-              }
+                        package Type::Library::Compiler::Mite;
+                        defined($value) and do {
+                            ref( \$value ) eq 'SCALAR'
+                              or ref( \( my $val = $value ) ) eq 'SCALAR';
+                        }
+                    }
+                )
+                  && ( length($value) > 0 )
+              )
               or croak "Type check failed in constructor: %s should be %s",
-              "constraint_module", "Str";
+              "constraint_module", "NonEmptyStr";
             $self->{"constraint_module"} = $value;
         };
 
         # Attribute: destination_filename
         if ( exists $args->{"destination_filename"} ) {
-            do {
+            (
+                (
+                    do {
 
-                package Type::Library::Compiler::Mite;
-                defined( $args->{"destination_filename"} ) and do {
-                    ref( \$args->{"destination_filename"} ) eq 'SCALAR'
-                      or ref( \( my $val = $args->{"destination_filename"} ) )
-                      eq 'SCALAR';
+                        package Type::Library::Compiler::Mite;
+                        defined( $args->{"destination_filename"} ) and do {
+                            ref( \$args->{"destination_filename"} ) eq 'SCALAR'
+                              or ref(
+                                \( my $val = $args->{"destination_filename"} ) )
+                              eq 'SCALAR';
+                        }
+                    }
+                )
+                  && do {
+
+                    package Type::Library::Compiler::Mite;
+                    length( $args->{"destination_filename"} ) > 0;
                 }
-              }
+              )
               or croak "Type check failed in constructor: %s should be %s",
-              "destination_filename", "Str";
+              "destination_filename", "NonEmptyStr";
             $self->{"destination_filename"} = $args->{"destination_filename"};
         }
 
@@ -249,17 +290,25 @@
             : (
                 $_[0]{"destination_filename"} = do {
                     my $default_value = $_[0]->_build_destination_filename;
-                    do {
+                    (
+                        (
+                            do {
 
-                        package Type::Library::Compiler::Mite;
-                        defined($default_value) and do {
-                            ref( \$default_value ) eq 'SCALAR'
-                              or ref( \( my $val = $default_value ) ) eq
-                              'SCALAR';
-                        }
-                      }
-                      or croak( "Type check failed in default: %s should be %s",
-                        "destination_filename", "Str" );
+                                package Type::Library::Compiler::Mite;
+                                defined($default_value) and do {
+                                    ref( \$default_value ) eq 'SCALAR'
+                                      or ref( \( my $val = $default_value ) )
+                                      eq 'SCALAR';
+                                }
+                            }
+                        )
+                          && ( length($default_value) > 0 )
+                      )
+                      or croak(
+                        "Type check failed in default: %s should be %s",
+                        "destination_filename",
+                        "NonEmptyStr"
+                      );
                     $default_value;
                 }
             )
