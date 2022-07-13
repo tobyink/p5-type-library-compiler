@@ -9,3 +9,10 @@
 	changeset [
 		item "Fix generated pod and real pod being confused."^^Documentation;
 	].
+
+`Type-Library-Compiler 0.003 cpan:TOBYINK`
+	issued  2022-07-13;
+	changeset [
+		item "Not supported by CLI yet, but it's now possible for types in the generated library to be named differently from in the original library; this allows for anonymous type constraints to be used to generate your compiled library."^^Change;
+		item "Smarter to_TypeTiny method."^^Change;
+	].
