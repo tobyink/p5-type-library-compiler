@@ -12,7 +12,7 @@ use B ();
 
 has types => (
 	is => ro,
-	isa => 'HashRef[Object]',
+	isa => 'Map[NonEmptyStr,Object]',
 	builder => sub { [] },
 );
 
@@ -25,13 +25,13 @@ has pod => (
 
 has destination_module => (
 	is => ro,
-	isa => 'Str',
+	isa => 'NonEmptyStr',
 	required => true,
 );
 
 has constraint_module => (
 	is => ro,
-	isa => 'Str',
+	isa => 'NonEmptyStr',
 	builder => sub {
 		sprintf '%s::TypeConstraint', shift->destination_module;
 	},
@@ -39,7 +39,7 @@ has constraint_module => (
 
 has destination_filename => (
 	is => lazy,
-	isa => 'Str',
+	isa => 'NonEmptyStr',
 	builder => sub {
 		( my $module = shift->destination_module ) =~ s{::}{/}g;
 		return sprintf 'lib/%s.pm', $module;
@@ -319,23 +319,24 @@ This class performs the bulk of the work for F<type-library-compiler>.
 
 =head2 Attributes
 
-=head3 C<types> B<< ArrayRef[Object] >>
+=head3 C<types> B<< Map[ NonEmptyStr => Object ] >>
 
-Required array of L<Type::Tiny> objects.
+Required hash of L<Type::Tiny> objects. Hash keys are the names the types
+will have in the generated library.
 
 =head3 C<pod> B<< Bool >>
 
 Should the generated module include pod? Defaults to true.
 
-=head3 C<destination_module> B<< Str >>
+=head3 C<destination_module> B<< NonEmptyStr >>
 
 Required Perl module name to produce.
 
-=head3 C<constraint_module> B<< Str >>
+=head3 C<constraint_module> B<< NonEmptyStr >>
 
 Leave this as the default.
 
-=head3 C<destination_filename> B<< Str >>
+=head3 C<destination_filename> B<< NonEmptyStr >>
 
 Leave this as the default.
 
@@ -354,7 +355,7 @@ Returns the module as a string of Perl code.
 =head3 C<< parse_list( @argv ) >>
 
 Parses a list of strings used to specify type constraints on the command line,
-and returns an arrayref of L<Type::Tiny> objects, suitable for the C<types>
+and returns a hashref of L<Type::Tiny> objects, suitable for the C<types>
 attribute.
 
 =head1 BUGS
