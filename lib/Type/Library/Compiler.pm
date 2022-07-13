@@ -274,7 +274,7 @@ sub parse_list {
 	shift;
 
 	my %all =
-		map { $_->is_anon ? $_->display_name : $_->name }
+		map { ( $_->is_anon ? $_->display_name : $_->name ) => $_ }
 		map {
 			my ( $library, $type_names ) = split /=/, $_;
 			do {
