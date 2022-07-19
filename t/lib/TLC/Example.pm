@@ -7,7 +7,7 @@ package TLC::Example;
 use Exporter ();
 use Carp qw( croak );
 
-our $TLC_VERSION = "0.006";
+our $TLC_VERSION = "0.007";
 our @ISA = qw( Exporter );
 our @EXPORT;
 our @EXPORT_OK;

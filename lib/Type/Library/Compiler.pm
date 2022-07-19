@@ -5,7 +5,7 @@ use warnings;
 package Type::Library::Compiler;
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.006';
+our $VERSION   = '0.007';
 
 use Type::Library::Compiler::Mite -all;
 use B ();

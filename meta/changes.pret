@@ -35,3 +35,11 @@
 		item "Smarter to_TypeTiny method for unions."^^Change;
 		item "Set $TLC_VERSION package variable in compiled libraries."^^Change;
 	].
+
+`Type-Library-Compiler 0.007 cpan:TOBYINK`
+	issued  2022-07-19;
+	changeset [
+		item "Improved generated pod."^^Change;
+		item "Add test for using compiled libraries with Moo."^^Tests;
+		item "Internally use blessed hashrefs instead of blessed arrayrefs."^^Change;
+	].
