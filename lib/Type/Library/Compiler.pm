@@ -281,6 +281,35 @@ sub _compile_pod_footer {
 	my $self = shift;
 
 	return <<'CODE';
+#=head1 TYPE CONSTRAINT METHODS
+
+For any type constraint B<Foo> the following methods are available:
+
+ Foo->check( $value )         # boolean
+ Foo->get_message( $value )   # error message, even if $value is ok 
+ Foo->validate( $value )      # error message, or undef if ok
+ Foo->assert_valid( $value )  # returns true, dies if error
+ Foo->assert_return( $value ) # returns $value, or dies if error
+ Foo->to_TypeTiny             # promotes the object to Type::Tiny
+
+Objects overload stringification to return their name and overload
+coderefification to call C<assert_return>.
+
+The objects as-is can be used in L<Moo> or L<Mite> C<isa> options.
+
+ has myattr => (
+   is => 'rw',
+   isa => Foo,
+ );
+
+They cannot be used as-is in L<Moose> or L<Mouse>, but can be promoted
+to Type::Tiny and will then work:
+
+ has myattr => (
+   is => 'rw',
+   isa => Foo->to_TypeTiny,
+ );
+
 #=cut
 
 CODE

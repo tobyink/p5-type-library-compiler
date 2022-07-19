@@ -7,6 +7,7 @@ package TLC::Example;
 use Exporter ();
 use Carp qw( croak );
 
+our $TLC_VERSION = "0.006";
 our @ISA = qw( Exporter );
 our @EXPORT;
 our @EXPORT_OK;
@@ -74,6 +75,7 @@ BEGIN {
 		if ( ref $library eq 'ARRAY' ) {
 			require Type::Tiny::Union;
 			return 'Type::Tiny::Union'->new(
+				display_name     => $name,
 				type_constraints => [ map $_->to_TypeTiny, @$library ],
 			);
 		}
@@ -531,6 +533,35 @@ C<< assert_String($value) >> checks a value against the type and throws an error
 To import all of these functions:
 
   use TLC::Example qw( :String );
+
+=head1 TYPE CONSTRAINT METHODS
+
+For any type constraint B<Foo> the following methods are available:
+
+ Foo->check( $value )         # boolean
+ Foo->get_message( $value )   # error message, even if $value is ok 
+ Foo->validate( $value )      # error message, or undef if ok
+ Foo->assert_valid( $value )  # returns true, dies if error
+ Foo->assert_return( $value ) # returns $value, or dies if error
+ Foo->to_TypeTiny             # promotes the object to Type::Tiny
+
+Objects overload stringification to return their name and overload
+coderefification to call C<assert_return>.
+
+The objects as-is can be used in L<Moo> or L<Mite> C<isa> options.
+
+ has myattr => (
+   is => 'rw',
+   isa => Foo,
+ );
+
+They cannot be used as-is in L<Moose> or L<Mouse>, but can be promoted
+to Type::Tiny and will then work:
+
+ has myattr => (
+   is => 'rw',
+   isa => Foo->to_TypeTiny,
+ );
 
 =cut
 
