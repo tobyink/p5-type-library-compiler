@@ -28,3 +28,10 @@
 	changeset [
 		item "Support Foo|Bar union type constraints."^^Addition;
 	].
+
+`Type-Library-Compiler 0.006 cpan:TOBYINK`
+	issued  2022-07-19;
+	changeset [
+		item "Smarter to_TypeTiny method for unions."^^Change;
+		item "Set $TLC_VERSION package variable in compiled libraries."^^Change;
+	].
