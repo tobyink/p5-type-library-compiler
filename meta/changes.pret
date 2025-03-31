@@ -48,4 +48,5 @@
 	issued  2025-03-31;
 	changeset [
 		item "Rebuild using newer version of Mite."^^SecurityFix;
+		item "Fix DOES to prevent infinite recursion."^^BugFix;
 	].

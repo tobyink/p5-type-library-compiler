@@ -182,7 +182,7 @@ BEGIN {
 	sub DOES {
 		return 1 if $_[1] eq 'Type::API::Constraint';
 		return 1 if $_[1] eq 'Type::Library::Compiler::TypeConstraint';
-		shift->DOES( @_ );
+		shift->SUPER::DOES( @_ );
 	}
 };
 
