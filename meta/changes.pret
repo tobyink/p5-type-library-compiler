@@ -43,3 +43,9 @@
 		item "Add test for using compiled libraries with Moo."^^Tests;
 		item "Internally use blessed hashrefs instead of blessed arrayrefs."^^Change;
 	].
+
+`Type-Library-Compiler 0.008 cpan:TOBYINK`
+	issued  2025-03-31;
+	changeset [
+		item "Rebuild using newer version of Mite."^^SecurityFix;
+	].
